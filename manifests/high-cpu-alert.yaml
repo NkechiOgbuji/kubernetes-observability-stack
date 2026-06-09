@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: high-cpu-alert
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: kubernetes-cpu-alerts
+      rules:
+        - alert: HighCPUUsage
+          expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High CPU usage detected"
+            description: "CPU usage has exceeded 80% for more than 5 minutes."
